@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+
+from __future__ import print_function
+import sys
+import argparse
+import re
+
+## To do: add a 'strict' option, to count only when reads map to the
+## annotation classes at a gene and transcript level (reduce the noise
+## given by small non-coding transcripts). Moreover modify the output
+## to report all genes/transcripts and not only the expressed one
+## (copy the output of htseq-count)
+
+def parserFunction():
+    # parse the command line arguments:
+    parser = argparse.ArgumentParser(description='This script counts reads '
+                                     'in a BED file (from STDIN) that map '
+                                     'within specified regions '
+                                     '(provided in BED format). '
+                                     'Note that BED file have to be '
+                                     'sorted by read ID.')
+    parser.add_argument('-t','--transcript',
+                        help='Report counts for each transcript. '
+                        'Otherwise report gene counts.',
+                        action="store_true")
+    parser.add_argument('-g','--globalCounts',
+                        help='report counts also for trenscripts '
+                        'that are not listed in the BED annotation file. '
+                        'Be careful when using this option as it might output '
+                        'genes that are located in scaffolds.',
+                        action="store_true")
+    parser.add_argument('-a','--annotation',
+                        help='BED file containing regions where to count reads.'
+                        ' Examples are CDS boundaries, exons, etc. The file has '
+                        '3 obligatory fields: ID (in the form GeneID|TranscriptID), '
+                        'Start position and Stop position. An additional filed '
+                        'might be present in the form of gene_types|transcript_type'
+                        ' (e.g. protein_coding, lncRNA, pseudogene, etc.)',
+                        nargs=1,
+                        type=str)
+    parser.add_argument('-o','--outputtype',
+                        help='If the type field is present in the annotation '
+                        'file, restrict the output to the following types.'
+                        'Multiples types can be specified if separated by a '
+                        'column [|].',
+                        nargs=1,
+                        type=str)
+    parser.add_argument('-s','--shift',
+                        help='Shift reads 5-end downstream to align them '
+                        'to putative ribosome A site. Default = 15.',
+                        nargs=1,
+                        type=int,
+                        default=15)
+    parser.add_argument('-d','--debug',
+                        help='Produce a verbose output, useful for debugging '
+                        'purposes.',
+                        action="store_true")
+    return parser.parse_args()
+
+def readAnnotation(annoFile):
+    trans = set()
+    genes = set()
+    cdsStart = dict()
+    cdsEnd = dict()
+    trnsGene = dict()
+    typeGene = dict()
+    typeTrns = dict()
+    cGene = dict()
+    for line in open( annoFile ):
+        line.rstrip("\n\r")
+        fields = line.split( "\t" )
+        chrIds = fields[0].split( "|" )
+        geneId = chrIds[0]
+        trnsId = chrIds[1]
+        cdsStart[ trnsId ] = int(fields[1])
+        cdsEnd[ trnsId ] = int(fields[2])
+        trans.add(trnsId)
+        genes.add(geneId)
+        trnsGene[ trnsId ] = geneId
+        cGene[ geneId ] = 0
+        if len( fields ) == 4:
+            types = fields[3].split( "|" )
+            typeGene[ geneId ] = types[0].rstrip("\n\r")
+            if len( types ) == 2: typeTrns[ trnsId ] = types[1].rstrip("\n\r")
+        #if dbg: print("Gene:", geneId, " Transcript:", trnsId, " Transcript type:", typeTrns[ trnsId ])
+    return cdsStart, cdsEnd, trans, trnsGene, genes, typeGene, typeTrns, cGene
+
+
+if __name__ == '__main__':
+
+    args = parserFunction()
+
+    transcript = args.transcript
+    cglobal = args.globalCounts
+    dbg = args.debug
+    if isinstance(args.shift, list):
+        shift = args.shift[0]
+    else:
+        shift = args.shift
+    
+    if args.annotation:
+        annoFile = str(args.annotation[0])
+        if dbg: print("BED file:", annoFile)
+        cdsStart, cdsEnd, tList, trnsGene, gList, typeGene, typeTrns, cGene = readAnnotation(annoFile)
+
+    pTypeOnly = 0
+    if args.outputtype:
+        oType = str(args.outputtype[0])
+        oType.rstrip("\n\r")
+        oTypes = oType.split( "|" )
+        pTypeOnly = 1
+        if dbg: print("Output:", oTypes, " Print:", pTypeOnly)
+    
+    cTrns = dict()
+    # cGene = dict()
+    cRead = dict()
+    count = dict()
+    oldReadId = ''
+    allGeneId = set()
+    lines = 1
+
+    count[ "_hit" ] = 0
+    count[ "_unmapped" ] = 0
+    count[ "_mapped" ] = 0
+    count[ "_ambiguous" ] = 0
+    count[ "_unambiguous" ] = 0
+    count[ "_feature" ] = 0
+    count[ "_no_feature" ] = 0
+    count[ "_hit_feature" ] = 0
+    count[ "_hit_no_feature" ] = 0
+    
+    for almnt in sys.stdin:
+        # check if read is aligned
+        almntFields = almnt.split( "\t" )
+        readId = almntFields[3]
+        chrIds = almntFields[0].split( "|" )
+        if (len(chrIds) > 1):
+            geneId = chrIds[0]
+            trnsId = chrIds[1]
+            if dbg: print("Gene:", geneId, " Transcript:", trnsId)
+        else:
+            chrIds = almntFields[0].split( "." )
+            trnsId = chrIds[0]
+            if dbg: print("Transcript only:", trnsId)
+            if trnsId in trnsGene:
+                geneId = trnsGene[ trnsId ]
+            else:
+                continue
+        readStart = int(almntFields[1])
+        readStop = int(almntFields[2])
+        readStrand = almntFields[5]
+
+        if(readStrand == "-"): continue
+
+        count[ "_hit" ] += 1
+        
+        # when read alignemnt change store info about previous read
+        # (where it mapped):
+        if oldReadId != '' and oldReadId != readId:
+            count[ "_mapped" ] += 1
+            # if read maps to multiple genes
+            if len(allGeneId) > 1:
+                count[ "_ambiguous" ] += 1
+                if dbg: print(oldReadId, 'maps', len(allGeneId), 'genes')
+            else:
+                count[ "_unambiguous" ] += 1
+                for gid in allGeneId:
+                    break
+                # add read to gene only if correctly mapped to at
+                # least 1 transcript:
+                if len(cRead) > 0:
+                    if gid in cGene:
+                        cGene[ gid ] += 1
+                    else:
+                        cGene[ gid ] = 1
+                    count[ "_feature" ] += 1
+                else:
+                    count[ "_no_feature" ] += 1
+                # add read to all transcripts:
+                for tid in cRead:
+                    if dbg: print(tid, geneId, 'has one read')
+                    if tid in cTrns:
+                        cTrns[ tid ] += 1
+                        if dbg: print(tid, geneId, cTrns[ tid ])
+                    else:
+                        cTrns[ tid ] = 1
+            allGeneId = set()
+            cRead = dict()
+
+        if cglobal:
+            if trnsId not in tList:
+                cdsStart[ trnsId ] = 0
+                cdsEnd[ trnsId ] = 999999999999
+                tList.add(trnsId)
+                gList.add(geneId)
+                trnsGene[ trnsId ] = geneId
+                
+                        
+        trns_ids = set()
+
+        if trnsId in tList:
+            # add geneID to the list only if read map to listed genes
+            # (the mapping database might have genes on scaffold that
+            # I do not want to count by default)
+            allGeneId.add(geneId)
+            if cdsStart[ trnsId ] <= readStart+shift and cdsEnd[ trnsId ] >= readStart+shift:
+                if trnsId in cRead:
+                    cRead[ trnsId ] += 1
+                else:
+                    cRead[ trnsId ] = 1
+                count[ "_hit_feature" ] += 1
+            else:
+                count[ "_hit_no_feature" ] += 1
+
+        oldReadId = readId
+
+    # Print out everything:
+    if transcript:
+        for trns_id in sorted(cTrns.keys()):
+            if pTypeOnly == 1:
+                if dbg: print('Printing only:', oTypes)
+                tTrns = typeTrns.keys()
+                if tid in tTrns:
+                    # chek the type of each transcript:
+                    if dbg: print(trns_id, 'type:', trnsGene[ trns_id ])
+                    if typeTrns[ trns_id ] in oTypes:
+                        print(trns_id, cTrns[ trns_id ], sep='\t')
+            else:
+                print(trns_id, cTrns[ trns_id ])
+    else:
+        for gid in sorted(cGene.keys()):
+            if pTypeOnly == 1:
+                if dbg: print('Printing only:', oTypes)
+                tGenes = typeGene.keys()
+                if gid in tGenes:
+                    # chek the type of each gene:
+                    if dbg: print(gid, 'type:', typeGene[ gid ])
+                    if typeGene[ gid ] in oTypes:
+                        print(gid, cGene[ gid ])
+            else:
+                print(gid, cGene[ gid ], sep='\t')
+
+    # Print summary:
+    print("Mapped reads:     ", count[ "_mapped" ], file=sys.stderr)
+    print("Unmapped reads:   ", count[ "_unmapped" ], file=sys.stderr)
+    print("Transcript hits:  ", count[ "_hit" ], file=sys.stderr)
+    print("Ambiguous reads:  ", count[ "_ambiguous" ],file=sys.stderr)
+    print("Unambiguous reads:", count[ "_unambiguous" ], file=sys.stderr)
+    print("No feature reads: ", count[ "_no_feature" ], file=sys.stderr)
+    print("Feature reads:    ", count[ "_feature" ], file=sys.stderr)
+    
