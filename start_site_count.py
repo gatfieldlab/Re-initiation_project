@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.8
 import argparse
 
-parser =argparse.ArgumentParser(description = 'calculate number of AUG, CUG,GUG,UUG in 5UTR')
-parser.add_argument('file', help='input file')
+parser =argparse.ArgumentParser(description = 'calculates the proportion of uORFs starting with AUG, CUG, GUG & UUG')
+parser.add_argument('file', help='input file contining the uORFs sequences')
 args = parser.parse_args()
 
 ATG = 0
