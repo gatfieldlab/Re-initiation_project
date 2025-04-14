@@ -352,12 +352,12 @@ Cenpa_1 <- 'ENSMUSG00000029177'
 pdf('DTG_TE_Eif2d_scatter_density_plot_colors.pdf')
 df_Eif2d <- data.frame(x = res_rna_Eif2d[,2], y = res_Eif2d[,2])
 df_no_na <- na.omit(df_Eif2d) 
-intensified <- data.frame(y=res_Eif2d[intensified_Denr_0.1,2], x=res_rna_Denr[intensified_Denr_0.1,2])
-buffered <- data.frame(y=res_Eif2d[buffered_Eif2d_0.1,2], x=res_rna_Denr[buffered_Denr_0.1,2])
-forwarded <- data.frame(y=res_Denr[forwarded_Denr_0.1,2], x=res_rna_Denr[forwarded_Denr_0.1,2])
-exclusive <- data.frame(y=res_Denr[exclusive_Denr_0.1,2], x=res_rna_Denr[exclusive_Denr_0.1,2])
-klhdc8a <- data.frame(y=res_Denr[klhdc8a_1,2], x=res_rna_Denr[klhdc8a_1,2])
-Asb8 <- data.frame(y=res_Denr[Asb8_1,2], x=res_rna_Denr[Asb8_1,2])
+intensified <- data.frame(y=res_Eif2d[intensified_Eif2d_0.1,2], x=res_rna_Denr[intensified_Eif2d_0.1,2])
+buffered <- data.frame(y=res_Eif2d[buffered_Eif2d_0.1,2], x=res_rna_Denr[buffered_Eif2d_0.1,2])
+forwarded <- data.frame(y=res_Eif2d[forwarded_Eif2d_0.1,2], x=res_rna_Denr[forwarded_Eif2d_0.1,2])
+exclusive <- data.frame(y=res_Eif2d[exclusive_Eif2d_0.1,2], x=res_rna_Denr[exclusive_Eif2d_0.1,2])
+klhdc8a <- data.frame(y=res_Eif2d[klhdc8a_1,2], x=res_rna_Eif2d[klhdc8a_1,2])
+Asb8 <- data.frame(y=res_Eif2d[Asb8_1,2], x=res_rna_Eif2d[Asb8_1,2])
 DTEGs <- bind_rows(intensified,buffered,exclusive)
 p <- ggplot(df_Denr, mapping = aes(x, y)) + geom_point(color = rgb(128/255,128/255,128/255,0.1), pch = 16, cex = 0.5)+ ylim(-3,3) + xlim(-3,3) + theme_classic() + geom_hline(yintercept=0, color = "gray", size=0.2) + geom_vline(xintercept=0, color = "gray", size=0.2)  + labs(x = "RNA-seq log2 fold change", y = 'TE log2 fold change') + 
   geom_point(buffered, mapping = aes(x,y), cex = 1.5, pch=16,color='#4dbe56') +
