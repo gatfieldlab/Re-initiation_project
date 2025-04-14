@@ -119,100 +119,120 @@ write.csv(res_ribo_Eif2dsh,
 res_Denr <- read.csv('DTEGs_Denrsh2_Ctrl_all.csv')
 res_ribo_Denr <- read.csv('Ribo_Denr_vs_Ctrl_all.csv', row.names = 1)
 res_rna_Denr <- read.csv('DTGs_Denrsh2_vs_Ctrl_all.csv', row.names = 1)
-forwarded_Denr = rownames(res_Denr)[which(res_Denr$padj > 0.05
-                                          & res_ribo_Denr$padj < 0.05 & res_rna_Denr$padj < 0.05)]
-exclusive_Denr = rownames(res_Denr)[which(res_Denr$padj < 0.05
-                                          & res_ribo_Denr$padj < 0.05 & res_rna_Denr$padj > 0.05)]
-both_Denr = rownames(res_Denr)[which(res_Denr$padj < 0.05 &
-                                       res_ribo_Denr$padj < 0.05 & res_rna_Denr$padj < 0.05)]
+forwarded_Denr = rownames(res_Denr)[which(res_Denr$padj > 0.1
+                                          & res_ribo_Denr$padj < 0.1 & res_rna_Denr$padj < 0.1)]
+exclusive_Denr = rownames(res_Denr)[which(res_Denr$padj < 0.1
+                                          & res_ribo_Denr$padj < 0.1 & res_rna_Denr$padj > 0.1)]
+both_Denr = rownames(res_Denr)[which(res_Denr$padj < 0.1 &
+                                       res_ribo_Denr$padj < 0.1 & res_rna_Denr$padj < 0.1)]
 intensified_Denr = rownames(res_Denr[both_Denr[which(res_Denr[both_Denr,2]*res_rna_Denr[both_Denr,2] > 0)],])
 buffered_Denr = rownames(res_Denr[both_Denr[which(res_Denr[both_Denr,2]*res_rna_Denr[both_Denr,2] < 0)],])
-buffered_Denr = c(rownames(res_Denr)[which(res_Denr$padj < 0.05 & res_ribo_Denr$padj > 0.05 & res_rna_Denr$padj < 0.05)], buffered_Denr)
+buffered_Denr = c(rownames(res_Denr)[which(res_Denr$padj < 0.1 & res_ribo_Denr$padj > 0.1 & res_rna_Denr$padj < 0.1)], buffered_Denr)
 max_val_Denr = max(res_ribo_Denr[,2],res_rna_Denr[,2],na.rm = T)
 
 res_Denr <- read.table('DTEGs_Denrsh2_Ctrl_all.csv', row.names = NULL)
 colnames(res_Denr) <- c('Gene_ID','baseMean','log2FoldChange','lfcSE','stat','pvalue','padj')
-write.csv(forwarded_Denr, 'Denr_forwarded.csv', row.names = FALSE)
-forwarded_Denr <- read.csv('Denr_forwarded.csv')
+write.csv(forwarded_Denr, 'Denr_forwarded_0.1.csv', row.names = FALSE)
+forwarded_Denr <- read.csv('Denr_forwarded_0.1.csv')
 colnames(forwarded_Denr) <- 'Gene_ID'
 forwarded_Denr <- merge(forwarded_Denr, gene_name, by = 'Gene_ID')
 forwarded_Denr <- merge(forwarded_Denr, res_Denr, by = 'Gene_ID')
-write.csv(forwarded_Denr, 'Denr_forwarded.csv', row.names = FALSE)
-write.csv(buffered_Denr, 'Denr_buffered.csv', row.names = FALSE)
-buffered_Denr <- read.csv('Denr_buffered.csv')
+write.csv(forwarded_Denr, 'Denr_forwarded_0.1.csv', row.names = FALSE)
+write.csv(buffered_Denr, 'Denr_buffered_0.1.csv', row.names = FALSE)
+buffered_Denr <- read.csv('Denr_buffered_0.1.csv')
 colnames(buffered_Denr) <- 'Gene_ID'
 buffered_Denr <- merge(buffered_Denr, gene_name, by = 'Gene_ID')
 buffered_Denr <- merge(buffered_Denr, res_Denr, by = 'Gene_ID')
-write.csv(buffered_Denr, 'Denr_buffered.csv', row.names = FALSE)
-write.csv(both_Denr, 'Denr_both.csv', row.names = FALSE)
-both_Denr <- read.csv('Denr_both.csv')
+write.csv(buffered_Denr, 'Denr_buffered_0.1.csv', row.names = FALSE)
+write.csv(both_Denr, 'Denr_both_0.1.csv', row.names = FALSE)
+both_Denr <- read.csv('Denr_both_0.1.csv')
 colnames(both_Denr) <- 'Gene_ID'
 both_Denr <- merge(both_Denr, gene_name, by = 'Gene_ID')
 both_Denr <- merge(both_Denr, res_Denr, by = 'Gene_ID')
-write.csv(both_Denr, 'Denr_both.csv', row.names = FALSE)
-write.csv(exclusive_Denr, 'Denr_exclusive.csv', row.names = FALSE)
-exclusive_Denr <- read.csv('Denr_exclusive.csv')
+write.csv(both_Denr, 'Denr_both_0.1.csv', row.names = FALSE)
+write.csv(exclusive_Denr, 'Denr_exclusive_0.1.csv', row.names = FALSE)
+exclusive_Denr <- read.csv('Denr_exclusive_0.1.csv')
 colnames(exclusive_Denr) <- 'Gene_ID'
 exclusive_Denr <- merge(exclusive_Denr, gene_name, by = 'Gene_ID')
 exclusive_Denr <- merge(exclusive_Denr, res_Denr, by = 'Gene_ID')
-write.csv(exclusive_Denr, 'Denr_exclusive.csv', row.names = FALSE)
-write.csv(intensified_Denr, 'Denr_intensified.csv', row.names = FALSE)
-intensified_Denr <- read.csv('Denr_intensified.csv')
+write.csv(exclusive_Denr, 'Denr_exclusive_0.1.csv', row.names = FALSE)
+write.csv(intensified_Denr, 'Denr_intensified_0.1.csv', row.names = FALSE)
+intensified_Denr <- read.csv('Denr_intensified_0.1.csv')
 colnames(intensified_Denr) <- 'Gene_ID'
 intensified_Denr <- merge(intensified_Denr, gene_name, by = 'Gene_ID')
 intensified_Denr <- merge(intensified_Denr, res_Denr, by = 'Gene_ID')
-write.csv(intensified_Denr, 'Denr_intensified.csv', row.names = FALSE)
+write.csv(intensified_Denr, 'Denr_intensified_0.1.csv', row.names = FALSE)
+
+exclu <- read.csv('Denr_exclusive_0.1.csv', row.names = NULL)
+intens <- read.csv('Denr_intensified_0.1.csv', row.names = NULL)
+buffer <- read.csv('Denr_buffered_0.1.csv', row.names = NULL)
+all <- merge(exclu,intens, all = TRUE)
+all <- merge(all, buffer, all = TRUE)
+all_pos <- all[all$log2FoldChange > 0,]
+write.csv(all_pos, 'Denrsh2_all_pos_TE_FC_FDR_0.1.csv', row.names = FALSE)
+all_neg <- all[all$log2FoldChange < 0,]
+write.csv(all_neg, 'Denrsh2_all_neg_TE_FC_FDR_0.1.csv', row.names = FALSE)
 
 #Eif2d shRNAs
 res_Eif2dsh <- read.csv('DTEGs_Eif2dsh_Ctrl_all.csv')
 res_ribo_Eif2dsh <- read.csv('Ribo_Eif2dsh_vs_Ctrl_all.csv', row.names = 1)
 res_rna_Eif2dsh <- read.csv('DTGs_Eif2dsh_vs_Ctrl_all.csv', row.names = 1)
-forwarded_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj > 0.05
-                                                & res_ribo_Eif2dsh$padj < 0.05 & res_rna_Eif2dsh$padj < 0.05)]
-exclusive_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.05
-                                                & res_ribo_Eif2dsh$padj < 0.05 & res_rna_Eif2dsh$padj > 0.05)]
-both_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.05 &
-                                             res_ribo_Eif2dsh$padj < 0.05 & res_rna_Eif2dsh$padj < 0.05)]
+forwarded_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj > 0.1
+                                                & res_ribo_Eif2dsh$padj < 0.1 & res_rna_Eif2dsh$padj < 0.1)]
+exclusive_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.1
+                                                & res_ribo_Eif2dsh$padj < 0.1 & res_rna_Eif2dsh$padj > 0.1)]
+both_Eif2dsh = rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.1 &
+                                             res_ribo_Eif2dsh$padj < 0.1 & res_rna_Eif2dsh$padj < 0.1)]
 intensified_Eif2dsh = rownames(res_Eif2dsh[both_Eif2dsh[which(res_Eif2dsh[both_Eif2dsh,2]*res_rna_Eif2dsh[both_Eif2dsh,2] > 0)],])
 buffered_Eif2dsh = rownames(res_Eif2dsh[both_Eif2dsh[which(res_Eif2dsh[both_Eif2dsh,2]
                                                            *res_rna_Eif2dsh[both_Eif2dsh,2] < 0)],])
-buffered_Eif2dsh = c(rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.05
-                                                 & res_ribo_Eif2dsh$padj > 0.05 & res_rna_Eif2dsh$padj < 0.05)],
+buffered_Eif2dsh = c(rownames(res_Eif2dsh)[which(res_Eif2dsh$padj < 0.1
+                                                 & res_ribo_Eif2dsh$padj > 0.1 & res_rna_Eif2dsh$padj < 0.1)],
                      buffered_Eif2dsh)
 max_val_Eif2dsh = max(res_ribo_Eif2dsh[,3],res_rna_Eif2dsh[,3],na.rm = T)
 
 res_Eif2dsh <- read.csv('DTEGs_Eif2dsh_Ctrl_all.csv', row.names = NULL)
 colnames(res_Eif2dsh) <- c('Gene_ID','baseMean','log2FoldChange','lfcSE','stat','pvalue','padj')
-write.csv(forwarded_Eif2dsh, 'Eif2dsh_forwarded.csv', row.names = FALSE)
-forwarded_Eif2dsh <- read.csv('Eif2dsh_forwarded.csv')
+write.csv(forwarded_Eif2dsh, 'Eif2dsh_forwarded_0.1.csv', row.names = FALSE)
+forwarded_Eif2dsh <- read.csv('Eif2dsh_forwarded_0.1.csv')
 colnames(forwarded_Eif2dsh) <- 'Gene_ID'
 forwarded_Eif2dsh <- merge(forwarded_Eif2dsh, gene_name, by = 'Gene_ID')
 forwarded_Eif2dsh <- merge(forwarded_Eif2dsh, res_Eif2dsh, by = 'Gene_ID')
-write.csv(forwarded_Eif2dsh, 'Eif2dsh_forwarded.csv', row.names = FALSE)
-write.csv(buffered_Eif2dsh, 'Eif2dsh_buffered.csv', row.names = FALSE)
-buffered_Eif2dsh <- read.csv('Eif2dsh_buffered.csv')
+write.csv(forwarded_Eif2dsh, 'Eif2dsh_forwarded_0.1.csv', row.names = FALSE)
+write.csv(buffered_Eif2dsh, 'Eif2dsh_buffered_0.1.csv', row.names = FALSE)
+buffered_Eif2dsh <- read.csv('Eif2dsh_buffered_0.1.csv')
 colnames(buffered_Eif2dsh) <- 'Gene_ID'
 buffered_Eif2dsh <- merge(buffered_Eif2dsh, gene_name, by = 'Gene_ID')
 buffered_Eif2dsh <- merge(buffered_Eif2dsh, res_Eif2dsh, by = 'Gene_ID')
-write.csv(buffered_Eif2dsh, 'Eif2dsh_buffered.csv', row.names = FALSE)
-write.csv(both_Eif2dsh, 'Eif2dsh_both.csv', row.names = FALSE)
-both_Eif2dsh <- read.csv('Eif2dsh_both.csv')
+write.csv(buffered_Eif2dsh, 'Eif2dsh_buffered_0.1.csv', row.names = FALSE)
+write.csv(both_Eif2dsh, 'Eif2dsh_both_0.1.csv', row.names = FALSE)
+both_Eif2dsh <- read.csv('Eif2dsh_both_0.1.csv')
 colnames(both_Eif2dsh) <- 'Gene_ID'
 both_Eif2dsh <- merge(both_Eif2dsh, gene_name, by = 'Gene_ID')
 both_Eif2dsh <- merge(both_Eif2dsh, res_Eif2dsh, by = 'Gene_ID')
-write.csv(both_Eif2dsh, 'Eif2dsh_both.csv', row.names = FALSE)
-write.csv(exclusive_Eif2dsh, 'Eif2dsh_exclusive.csv', row.names = FALSE)
-exclusive_Eif2dsh <- read.csv('Eif2dsh_exclusive.csv')
+write.csv(both_Eif2dsh, 'Eif2dsh_both_0.1.csv', row.names = FALSE)
+write.csv(exclusive_Eif2dsh, 'Eif2dsh_exclusive_0.1.csv', row.names = FALSE)
+exclusive_Eif2dsh <- read.csv('Eif2dsh_exclusive_0.1.csv')
 colnames(exclusive_Eif2dsh) <- 'Gene_ID'
 exclusive_Eif2dsh <- merge(exclusive_Eif2dsh, gene_name, by = 'Gene_ID')
 exclusive_Eif2dsh <- merge(exclusive_Eif2dsh, res_Eif2dsh, by = 'Gene_ID')
-write.csv(exclusive_Eif2dsh, 'Eif2dsh_exclusive.csv', row.names = FALSE)
-write.csv(intensified_Eif2dsh, 'Eif2dsh_intensified.csv', row.names = FALSE)
-intensified_Eif2dsh <- read.csv('Eif2dsh_intensified.csv')
+write.csv(exclusive_Eif2dsh, 'Eif2dsh_exclusive_0.1.csv', row.names = FALSE)
+write.csv(intensified_Eif2dsh, 'Eif2dsh_intensified_0.1.csv', row.names = FALSE)
+intensified_Eif2dsh <- read.csv('Eif2dsh_intensified_0.1.csv')
 colnames(intensified_Eif2dsh) <- 'Gene_ID'
 intensified_Eif2dsh <- merge(intensified_Eif2dsh, gene_name, by = 'Gene_ID')
 intensified_Eif2dsh <- merge(intensified_Eif2dsh, res_Eif2dsh, by = 'Gene_ID')
-write.csv(intensified_Eif2dsh, 'Eif2dsh_intensified.csv', row.names = FALSE)
+write.csv(intensified_Eif2dsh, 'Eif2dsh_intensified_0.1.csv', row.names = FALSE)
+
+exclu <- read.csv('Eif2dsh_exclusive_0.1.csv', row.names = NULL)
+intens <- read.csv('Eif2dsh_intensified_0.1.csv', row.names = NULL)
+buffer <- read.csv('Eif2dsh_buffered_0.1.csv', row.names = NULL)
+all <- merge(exclu,intens, all = TRUE)
+all <- merge(all, buffer, all = TRUE)
+all_pos <- all[all$log2FoldChange > 0,]
+write.csv(all_pos, 'Eif2dsh_all_pos_TE_FC_FDR_0.1.csv', row.names = FALSE)
+all_neg <- all[all$log2FoldChange < 0,]
+write.csv(all_neg, 'Eif2dsh_all_neg_TE_FC_FDR_0.1.csv', row.names = FALSE)
 
 #Visualize the global translational and transcriptional regulation as in Figure 1E
 res_rna_Denr <- read.csv('DTGs_Denrsh2_vs_Ctrl_all.csv', row.names = 1)
@@ -269,15 +289,14 @@ points(y=res_ribo_Eif2dsh[exclusive_Eif2dsh,2], x=res_rna_Eif2dsh
 dev.off()
 
 
-# GO enrichment analysis Denr shRNA2
-#exclusive_negative FC
-exclusive_neg <- read.csv('Denr_forwarded_positive.csv', row.names = NULL)
-exclusive_neg_genes <- exclusive_neg[,1]
-ego <- enrichGO(gene = exclusive_neg_genes, keyType = "ENSEMBL",OrgDb='org.Mm.eg.db', ont = "BP", pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
+# GO enrichment analysis all negative Denr shRNA2
+all_neg <- read.csv('Denrsh2_all_negative_TE_FC_FDR_0.1.csv', row.names = NULL)
+all_neg_genes <- all_neg[,1]
+ego <- enrichGO(gene = all_neg_genes, keyType = "ENSEMBL",OrgDb='org.Mm.eg.db', ont = "BP", pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
 # Output results from GO analysis to a table
 cluster_summary <- data.frame(ego)
-write.csv(cluster_summary, 'GO_analysis_BP_Denr_forwarded_positive.csv')
-pdf('GO_analysis_plots_BP_Denr_forwarded_positive.pdf',height=12,width=13)
+write.csv(cluster_summary, 'GO_analysis_BP_Denrsh2_all_negative.csv')
+pdf('GO_analysis_plots_BP_Denrsh2_all_negative_FDR_0.1.pdf',height=12,width=13)
 #category netplot
 signif_res_lFC <- res_Denr$log2FoldChange # To color genes by log2 fold changes
 cnetplot(ego, categorySize="pvalue", showCategory = 5, foldChange= signif_res_lFC, vertex.label.font=6)
@@ -285,51 +304,20 @@ cnetplot(ego, categorySize="pvalue", showCategory = 5, foldChange= signif_res_lF
 barplot(ego, showCategory=20)
 dev.off()
 
-#exclusive_positive FC
-exclusive_pos <- read.csv('Denrsh2_all_positive_TE_FC.csv', row.names = NULL)
-exclusive_pos_genes <- exclusive_pos[,1]
-ego <- enrichGO(gene = exclusive_pos_genes, keyType = "ENSEMBL",OrgDb='org.Mm.eg.db', ont = "BP", pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
-# Output results from GO analysis to a table
-cluster_summary <- data.frame(ego)
-write.csv(cluster_summary, 'GO_analysis_BP_Denr_all_positive.csv')
-pdf('GO_analysis_plots_BP_Denr_all_positive_2.pdf',height=12,width=13)
-#category netplot
-signif_res_lFC <- res_Denr$log2FoldChange # To color genes by log2 fold changes
-cnetplot(ego, categorySize="pvalue", showCategory = 5, foldChange= signif_res_lFC, vertex.label.font=6)
-#barplot
-barplot(ego, showCategory=5)
-dev.off()
-
-# GO enrichment analysis exclusive negative Eif2d shRNAs
-exclusive_neg <- read.csv('DTGs_Eif2dsh_vs_Ctrl.csv', row.names = NULL)
+# GO enrichment analysis all negative Eif2d shRNAs
+all_neg <- read.csv('Eif2dsh_all_negative_TE_FC_FDR_0.1.csv', row.names = NULL)
 exclusive_neg_genes <- exclusive_neg[,1]
 ego <- enrichGO(gene = exclusive_neg_genes, keyType = "ENSEMBL",OrgDb='org.Mm.eg.db', ont = "BP", pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
 # Output results from GO analysis to a table
 cluster_summary <- data.frame(ego)
-write.csv(cluster_summary,  'GO_analysis_BP_Eif2dsh_DTGs.csv')
-pdf('GO_analysis_plots_BP_Eif2dsh_DTGs.pdf',height=12,width=13)
+write.csv(cluster_summary,  'GO_analysis_BP_Eif2dsh_all_negative_FDR_0.1.csv')
+pdf('GO_analysis_plots_BP_Eif2dsh_all_negative_FDR_0.1.pdf',height=12,width=13)
 #category netplot
 signif_res_lFC <- res_Eif2dsh$log2FoldChange # To color genes by log2 fold changes
 cnetplot(ego, categorySize="pvalue", showCategory = 5, foldChange= signif_res_lFC, vertex.label.font=6)
 #barplot
 barplot(ego, showCategory=20)
 dev.off()
-
-#GO enrichment analysis exclusive_positive FC Eif2d shRNAs
-exclusive_pos <- read.csv('Eif2dsh_all_pos_TE_FC.csv', row.names = NULL)
-exclusive_pos_genes <- exclusive_pos[,1]
-ego <- enrichGO(gene = exclusive_pos_genes, keyType = "ENSEMBL",OrgDb='org.Mm.eg.db', ont = "BP", pAdjustMethod = "BH", qvalueCutoff = 0.05, readable = TRUE)
-# Output results from GO analysis to a table
-cluster_summary <- data.frame(ego)
-write.csv(cluster_summary, 'GO_analysis_BP_Eif2dsh_highest_positive.csv')
-pdf('GO_analysis_plots_BP_Eif2dsh_all_positive.pdf',height=12,width=13)
-#category netplot
-signif_res_lFC <- res_Eif2dsh$log2FoldChange # To color genes by log2 fold changes
-cnetplot(ego, categorySize="pvalue", showCategory = 5, foldChange= signif_res_lFC, vertex.label.font=6)
-#barplot
-barplot(ego, showCategory=5)
-dev.off()
-
 
 #Visualize the global TE and RNA abundance
 
@@ -361,7 +349,7 @@ Rps20_1 <- 'ENSMUSG00000028234'
 Ndc80_1 <- 'ENSMUSG00000024056'
 Cenpa_1 <- 'ENSMUSG00000029177'
 
-pdf('DTG_TE_Eif2d_scatter_density_plot_colors_2.pdf')
+pdf('DTG_TE_Eif2d_scatter_density_plot_colors.pdf')
 df_Eif2d <- data.frame(x = res_rna_Eif2d[,2], y = res_Eif2d[,2])
 df_no_na <- na.omit(df_Eif2d) 
 intensified <- data.frame(y=res_Eif2d[intensified_Denr_0.1,2], x=res_rna_Denr[intensified_Denr_0.1,2])
